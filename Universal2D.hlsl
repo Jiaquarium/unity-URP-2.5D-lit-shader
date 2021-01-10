@@ -1,3 +1,6 @@
+// NOTE Based on master branch
+// https://github.com/Unity-Technologies/Graphics/blob/master/com.unity.render-pipelines.universal/Shaders/Utils/Universal2D.hlsl
+
 #ifndef UNIVERSAL_FALLBACK_2D_INCLUDED
 #define UNIVERSAL_FALLBACK_2D_INCLUDED
  
