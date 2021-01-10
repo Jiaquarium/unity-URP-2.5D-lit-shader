@@ -33,8 +33,7 @@ half4 frag(Varyings input) : SV_Target
     half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
     half3 color = texColor.rgb * _BaseColor.rgb;
     half alpha = texColor.a * _BaseColor.a;
-    //AlphaDiscard(alpha, _Cutoff);
-    clip(alpha - _Cutoff);
+    AlphaDiscard(alpha, _Cutoff);
  
 #ifdef _ALPHAPREMULTIPLY_ON
     color *= alpha;
