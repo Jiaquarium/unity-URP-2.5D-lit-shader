@@ -61,7 +61,12 @@ Shader "Universal Render Pipeline/Custom/Sprites Lit"
         // Universal Pipeline tag is required. If Universal render pipeline is not set in the graphics settings
         // this Subshader will fail. One can add a subshader below or fallback to Standard built-in to make this
         // material work with both Universal Render Pipeline and Builtin Unity Pipeline
-        Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "IgnoreProjector" = "True"}
+        Tags{
+            "RenderType" = "Opaque"
+            "RenderPipeline" = "UniversalPipeline"
+            "IgnoreProjector" = "True"
+            "DisableBatching"="True"
+        }
         LOD 300
 
         // ------------------------------------------------------------------
