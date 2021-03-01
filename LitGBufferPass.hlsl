@@ -1,13 +1,14 @@
-// Updated for URP 10.2.1/release
-// https://github.com/Unity-Technologies/Graphics/blob/10.2.1/release/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl
-
-#ifndef UNIVERSAL_FORWARD_LIT_PASS_INCLUDED
-#define UNIVERSAL_FORWARD_LIT_PASS_INCLUDED
+#ifndef UNIVERSAL_LIT_GBUFFER_PASS_INCLUDED
+#define UNIVERSAL_LIT_GBUFFER_PASS_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
 
-// GLES2 has limited amount of interpolators
-#if defined(_PARALLAXMAP) && !defined(SHADER_API_GLES)
+// TODO: Currently we support viewDirTS caclulated in vertex shader and in fragments shader.
+// As both solutions have their advantages and disadvantages (etc. shader target 2.0 has only 8 interpolators).
+// We need to find out if we can stick to one solution, which we needs testing.
+// So keeping this until I get manaul QA pass.
+#if defined(_PARALLAXMAP) && (SHADER_TARGET >= 30)
 #define REQUIRES_TANGENT_SPACE_VIEW_DIR_INTERPOLATOR
 #endif
 
@@ -15,7 +16,7 @@
 #define REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR
 #endif
 
-// keep this file in sync with LitGBufferPass.hlsl
+// keep this file in sync with LitForwardPass.hlsl
 
 struct Attributes
 {
@@ -42,7 +43,7 @@ struct Varyings
 #endif
     float3 viewDirWS                : TEXCOORD5;
 
-    half4 fogFactorAndVertexLight   : TEXCOORD6; // x: fogFactor, yzw: vertex light
+    half3 vertexLighting            : TEXCOORD6;    // xyz: vertex lighting
 
 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
     float4 shadowCoord              : TEXCOORD7;
@@ -85,8 +86,8 @@ void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData
     inputData.shadowCoord = float4(0, 0, 0, 0);
 #endif
 
-    inputData.fogCoord = input.fogFactorAndVertexLight.x;
-    inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
+    inputData.fogCoord = 0.0; // we don't apply fog in the guffer pass
+    inputData.vertexLighting = input.vertexLighting.xyz;
     inputData.bakedGI = SAMPLE_GI(input.lightmapUV, input.vertexSH, inputData.normalWS);
     inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
     inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUV);
@@ -96,46 +97,8 @@ void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData
 //                  Vertex and Fragment functions                            //
 ///////////////////////////////////////////////////////////////////////////////
 
-float RayPlaneIntersection( float3 rayDir, float3 rayPos, float3 planeNormal, float3 planePos)
-{
-    float denom = dot(planeNormal, rayDir);
-    denom = max(denom, 0.000001); // avoid divide by zero
-    float3 diff = planePos - rayPos;
-    return dot(diff, planeNormal) / denom;
-}
-float BillboardVerticalZDepthVert(Attributes IN, inout Varyings OUT)
-{
-    // billboard mesh towards camera
-    float3 vpos = mul((float3x3)unity_ObjectToWorld, IN.positionOS.xyz);
-    float4 worldCoord = float4(unity_ObjectToWorld._m03, unity_ObjectToWorld._m13, unity_ObjectToWorld._m23, 1);
-    float4 viewPos = mul(UNITY_MATRIX_V, worldCoord) + float4(vpos, 0);
-    
-    // view to clip space
-    OUT.positionCS = mul(UNITY_MATRIX_P, viewPos);
-
-    // calculate distance to vertical billboard plane seen at this vertex's screen position
-    float3 planeNormal = normalize(float3(UNITY_MATRIX_V._m20, 0.0, UNITY_MATRIX_V._m22));
-    float3 planePoint = unity_ObjectToWorld._m03_m13_m23;
-    float3 rayStart = _WorldSpaceCameraPos.xyz;
-    float3 rayDir = -normalize(mul(UNITY_MATRIX_I_V, float4(viewPos.xyz, 1.0)).xyz - rayStart); // convert view to world, minus camera pos
-    float dist = RayPlaneIntersection(rayDir, rayStart, planeNormal, planePoint);
-
-    // calculate the clip space z for vertical plane
-    float4 planeOutPos = mul(UNITY_MATRIX_VP, float4(rayStart + rayDir * dist, 1.0));
-    float newPosZ = planeOutPos.z / planeOutPos.w * OUT.positionCS.w;
-    
-    // use the closest clip space z
-    #if defined(UNITY_REVERSED_Z)
-    newPosZ = max(OUT.positionCS.z, newPosZ);
-    #else
-    newPosZ = min(OUT.positionCS.z, newPosZ);
-    #endif
-
-    return newPosZ;
-}
-
 // Used in Standard (Physically Based) shader
-Varyings LitPassVertex(Attributes input)
+Varyings LitGBufferPassVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
 
@@ -144,7 +107,7 @@ Varyings LitPassVertex(Attributes input)
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-    
+
     // normalWS and tangentWS already normalize.
     // this is required to avoid skewing the direction during interpolation
     // also required for per-vertex lighting and SH evaluation
@@ -152,7 +115,6 @@ Varyings LitPassVertex(Attributes input)
 
     half3 viewDirWS = GetWorldSpaceViewDir(vertexInput.positionWS);
     half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
-    half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
     output.uv = TRANSFORM_TEX(input.texcoord, _MainTex);
 
@@ -175,7 +137,7 @@ Varyings LitPassVertex(Attributes input)
     OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
     OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
 
-    output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
+    output.vertexLighting = vertexLight;
 
 #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
     output.positionWS = vertexInput.positionWS;
@@ -186,13 +148,12 @@ Varyings LitPassVertex(Attributes input)
 #endif
 
     output.positionCS = vertexInput.positionCS;
-    output.positionCS.z = BillboardVerticalZDepthVert(input, output);
 
     return output;
 }
 
 // Used in Standard (Physically Based) shader
-half4 LitPassFragment(Varyings input) : SV_Target
+FragmentOutput LitGBufferPassFragment(Varyings input)
 {
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
@@ -212,12 +173,22 @@ half4 LitPassFragment(Varyings input) : SV_Target
     InputData inputData;
     InitializeInputData(input, surfaceData.normalTS, inputData);
 
-    half4 color = UniversalFragmentPBR(inputData, surfaceData);
+    // Stripped down version of UniversalFragmentPBR().
 
-    color.rgb = MixFog(color.rgb, inputData.fogCoord);
-    color.a = OutputAlpha(color.a, _Surface);
+#ifdef _SPECULARHIGHLIGHTS_OFF
+    bool specularHighlightsOff = true;
+#else
+    bool specularHighlightsOff = false;
+#endif
 
-    return color;
+    // in LitForwardPass GlobalIllumination (and temporarily LightingPhysicallyBased) are called inside UniversalFragmentPBR
+    // in Deferred rendering we store the sum of these values (and of emission as well) in the GBuffer
+    BRDFData brdfData;
+    InitializeBRDFData(surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.alpha, brdfData);
+
+    half3 color = GlobalIllumination(brdfData, inputData.bakedGI, surfaceData.occlusion, inputData.normalWS, inputData.viewDirectionWS);
+
+    return BRDFDataToGbuffer(brdfData, inputData, surfaceData.smoothness, surfaceData.emission + color);
 }
 
 #endif

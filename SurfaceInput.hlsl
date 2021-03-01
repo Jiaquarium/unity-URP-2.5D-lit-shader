@@ -1,3 +1,6 @@
+// Updated for URP 10.2.1/release
+// https://github.com/Unity-Technologies/Graphics/blob/10.2.1/release/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl
+
 #ifndef UNIVERSAL_INPUT_SURFACE_INCLUDED
 #define UNIVERSAL_INPUT_SURFACE_INCLUDED
 
@@ -21,11 +24,9 @@ half Alpha(half albedoAlpha, half4 color, half cutoff)
     half alpha = color.a;
 #endif
 
-#if defined(_ALPHATEST_ON)
+    // Always clip.
     clip(alpha - cutoff);
-#endif
 
-    clip(alpha - cutoff);
     return alpha;
 }
 

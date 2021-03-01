@@ -1,3 +1,6 @@
+// Updated for URP 10.2.1/release
+// https://github.com/Unity-Technologies/Graphics/blob/10.2.1/release/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl
+
 #ifndef UNIVERSAL_LIT_META_PASS_INCLUDED
 #define UNIVERSAL_LIT_META_PASS_INCLUDED
 
@@ -24,8 +27,7 @@ struct Varyings
 Varyings UniversalVertexMeta(Attributes input)
 {
     Varyings output;
-    output.positionCS = MetaVertexPosition(input.positionOS, input.uv1, input.uv2,
-        unity_LightmapST, unity_DynamicLightmapST);
+    output.positionCS = MetaVertexPosition(input.positionOS, input.uv1, input.uv2, unity_LightmapST, unity_DynamicLightmapST);
     output.uv = TRANSFORM_TEX(input.uv0, _MainTex);
     return output;
 }
