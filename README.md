@@ -10,7 +10,7 @@ In [LitForwardPass.hlsl](https://github.com/strawberryjamnbutter/unity-URP-2.5D-
 
 ***
 #### Before and After Comparison of Using Sprites Near 3D Meshes
-![Comparison](/Assets/demo_0.png)
+![Comparison](/Assets/demo_1.png)
 > "Feels good to not have my head inside these cabinets all day."
 
 ## Requirements
