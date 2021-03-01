@@ -1,5 +1,5 @@
-﻿// based on Unity-Technologies/Graphics 2019.3 release
-//https://github.com/Unity-Technologies/Graphics/blob/release2019.3/com.unity.render-pipelines.universal/Shaders/Lit.shader
+﻿// Based on Unity-Technologies/Graphics 2019.3 release
+// https://github.com/Unity-Technologies/Graphics/blob/release2019.3/com.unity.render-pipelines.universal/Shaders/Lit.shader
 Shader "Universal Render Pipeline/Custom/Sprites Lit"
 {
     Properties
@@ -26,9 +26,6 @@ Shader "Universal Render Pipeline/Custom/Sprites Lit"
         [ToggleOff] _SpecularHighlights("Specular Highlights", Float) = 1.0
         [ToggleOff] _EnvironmentReflections("Environment Reflections", Float) = 1.0
 
-        _BumpScale("Scale", Float) = 1.0
-        _BumpMap("Normal Map", 2D) = "bump" {}
-
         _OcclusionStrength("Strength", Range(0.0, 1.0)) = 1.0
         _OcclusionMap("Occlusion", 2D) = "white" {}
 
@@ -49,7 +46,6 @@ Shader "Universal Render Pipeline/Custom/Sprites Lit"
         [HideInInspector] _QueueOffset("Queue offset", Float) = 0.0
 
         // ObsoleteProperties
-        // [HideInInspector] _MainTex("BaseMap", 2D) = "white" {} // prevent collisions
         [HideInInspector] _Color("Base Color", Color) = (0.5, 0.5, 0.5, 1)
         [HideInInspector] _GlossMapScale("Smoothness", Float) = 0.0
         [HideInInspector] _Glossiness("Smoothness", Float) = 0.0
@@ -65,7 +61,7 @@ Shader "Universal Render Pipeline/Custom/Sprites Lit"
             "RenderType" = "Opaque"
             "RenderPipeline" = "UniversalPipeline"
             "IgnoreProjector" = "True"
-            "DisableBatching"="True"
+            "DisableBatching" = "True"
         }
         LOD 300
 
@@ -76,7 +72,9 @@ Shader "Universal Render Pipeline/Custom/Sprites Lit"
             // Lightmode matches the ShaderPassName set in UniversalRenderPipeline.cs. SRPDefaultUnlit and passes with
             // no LightMode tag are also rendered by Universal Render Pipeline
             Name "ForwardLit"
-            Tags{"LightMode" = "UniversalForward"}
+            Tags{
+                "LightMode" = "UniversalForward"
+            }
 
             Blend[_SrcBlend][_DstBlend]
             ZWrite On
