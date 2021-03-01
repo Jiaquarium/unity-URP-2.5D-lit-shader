@@ -1,12 +1,11 @@
 # Universal RP 2.5D Lit Sprite Shader 🖤 &middot; [![HitCount](http://hits.dwyl.com/strawberryjamnbutter/unity-URP-25D-lit-shader.svg)](http://hits.dwyl.com/strawberryjamnbutter/unity-URP-25D-lit-shader)
 
-The shader prevents 2D Sprites from clipping horribly into the 3D environment when using a skewed orthographic camera. This is useful for setups where 2D sprites must be rotated towards the camera in a 3D environment to achieve a 2.5D look and feeeel.
+The shader prevents 2D Sprites from clipping horribly into the 3D environment when using a skewed orthographic camera. This is useful for setups where 2D sprites must be rotated towards the camera in a 3D environment to achieve a 2.5D look and feel. Also gives 2D Sprites a Lit Behavior when using Unity's Universal RP 3D settings.
 
 ![Shader Demo Pic](/Assets/demo_0.png)
 
-Additionally, it gives 2D Sprites a Lit behavior (reacts to Directional Lighting, receives shadows and casts shadows) in a 3D environment when using Unity's Universal RP which does not have a built-in Lit 2D shader in 3D environments.
-
-In [LitForwardPass.hlsl](https://github.com/strawberryjamnbutter/unity-URP-2.5D-lit-shader/blob/main/LitForwardPass.hlsl), in the vertex shader, the clip space depth is overwritten as if the sprite were vertical.
+* helps prevent rotated Sprites from clipping nearby 3D meshes by rewriting the clip space depth as if the Sprite were vertically aligned in the world like the meshes are
+* allows Sprites to react to lighting and receive / cast realtime shadows from Directional Lights
 
 ***
 #### Before and After Comparison of Using Sprites Near 3D Meshes
@@ -23,7 +22,8 @@ In [LitForwardPass.hlsl](https://github.com/strawberryjamnbutter/unity-URP-2.5D-
 
 * nondirectional shadows and directional shadows on mobile use world position passed to the fragment shader pass, so you may see sprites receiving shadows as if they were still being clipped with these use cases
 * this renders the Sprite as an opaque object, so sorting order will be ignored
-
+* in Unity, you may need to also set the Sprite Renderer component's properties `Cast Shadows = On` and `Receive Shadows = True` (which are available in Debug mode only)
+* in [LitForwardPass.hlsl](https://github.com/strawberryjamnbutter/unity-URP-2.5D-lit-shader/blob/main/LitForwardPass.hlsl), in the vertex shader, the clip space depth is overwritten
 
 ## References
 
