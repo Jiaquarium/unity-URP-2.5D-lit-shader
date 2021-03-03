@@ -1,4 +1,4 @@
-# Universal RP 2.5D Lit Sprite Shader 🖤 &middot; [![HitCount](http://hits.dwyl.com/luo-boa/unity-URP-25D-lit-shader.svg)](http://hits.dwyl.com/luo-boa/unity-URP-25D-lit-shader)
+# Universal RP 2.5D Lit Sprite Shader 🖤 &middot; [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fluo-boa%2Funity-URP-2.5D-lit-shader&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
 The shader prevents 2D Sprites from clipping horribly into the 3D environment when using a skewed orthographic camera. This is useful for setups where 2D sprites must be rotated towards the camera in a 3D environment to achieve a 2.5D look and feel. Also gives 2D Sprites a Lit Behavior when using Unity's Universal RP 3D settings.
 
