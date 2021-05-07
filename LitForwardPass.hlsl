@@ -103,6 +103,7 @@ float RayPlaneIntersection( float3 rayDir, float3 rayPos, float3 planeNormal, fl
     float3 diff = planePos - rayPos;
     return dot(diff, planeNormal) / denom;
 }
+
 float BillboardVerticalZDepthVert(Attributes IN, inout Varyings OUT)
 {
     // billboard mesh towards camera
