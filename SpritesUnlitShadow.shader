@@ -11,6 +11,7 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit"
         [MainTexture] _MainTex("Albedo", 2D) = "white" {}
         [MainColor] _BaseColor("Color", Color) = (0.5,0.5,0.5,1)
         
+        _ShadowLight ("Shadow Light", Float) = 0.5
         _Color("Tint", Color) = (1,1,1,1)
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
@@ -102,117 +103,49 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit"
             #pragma exclude_renderers gles gles3 glcore
             #pragma target 4.5
 
-            #pragma vertex vert
-            #pragma fragment frag
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _NORMALMAP
             #pragma shader_feature_local_fragment _ALPHATEST_ON
             #pragma shader_feature_local_fragment _ALPHAPREMULTIPLY_ON
+            #pragma shader_feature_local_fragment _EMISSION
+            #pragma shader_feature_local_fragment _METALLICSPECGLOSSMAP
+            #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+            #pragma shader_feature_local_fragment _OCCLUSIONMAP
+            #pragma shader_feature_local _PARALLAXMAP
+            #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
+            #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+            #pragma shader_feature_local_fragment _SPECULAR_SETUP
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile_fog
+
+            //--------------------------------------
+            // GPU Instancing
             #pragma multi_compile_instancing
             #pragma multi_compile _ DOTS_INSTANCING_ON
 
-            #include "UnlitInput.hlsl"
+            #pragma vertex LitPassVertex
+            #pragma fragment LitPassFragment
 
-            struct Attributes
-            {
-                float4 positionOS       : POSITION;
-                float2 uv               : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            struct Varyings
-            {
-                float2 uv        : TEXCOORD0;
-                float fogCoord  : TEXCOORD1;
-                float4 vertex : SV_POSITION;
-
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
-
-            float RayPlaneIntersection( float3 rayDir, float3 rayPos, float3 planeNormal, float3 planePos)
-            {
-                float denom = dot(planeNormal, rayDir);
-                denom = max(denom, 0.000001); // avoid divide by zero
-                float3 diff = planePos - rayPos;
-                return dot(diff, planeNormal) / denom;
-            }
-
-            float BillboardVerticalZDepthVert(Attributes IN, inout Varyings OUT)
-            {
-                // billboard mesh towards camera
-                float3 vpos = mul((float3x3)unity_ObjectToWorld, IN.positionOS.xyz);
-                float4 worldCoord = float4(unity_ObjectToWorld._m03, unity_ObjectToWorld._m13, unity_ObjectToWorld._m23, 1);
-                float4 viewPos = mul(UNITY_MATRIX_V, worldCoord) + float4(vpos, 0);
-                
-                // view to clip space
-                OUT.vertex = mul(UNITY_MATRIX_P, viewPos);
-
-                // calculate distance to vertical billboard plane seen at this vertex's screen position
-                float3 planeNormal = normalize(float3(UNITY_MATRIX_V._m20, 0.0, UNITY_MATRIX_V._m22));
-                float3 planePoint = unity_ObjectToWorld._m03_m13_m23;
-                float3 rayStart = _WorldSpaceCameraPos.xyz;
-                float3 rayDir = -normalize(mul(UNITY_MATRIX_I_V, float4(viewPos.xyz, 1.0)).xyz - rayStart); // convert view to world, minus camera pos
-                float dist = RayPlaneIntersection(rayDir, rayStart, planeNormal, planePoint);
-
-                // calculate the clip space z for vertical plane
-                float4 planeOutPos = mul(UNITY_MATRIX_VP, float4(rayStart + rayDir * dist, 1.0));
-                float newPosZ = planeOutPos.z / planeOutPos.w * OUT.vertex.w;
-                
-                // use the closest clip space z
-                #if defined(UNITY_REVERSED_Z)
-                newPosZ = max(OUT.vertex.z, newPosZ);
-                #else
-                newPosZ = min(OUT.vertex.z, newPosZ);
-                #endif
-
-                return newPosZ;
-            }
-
-            Varyings vert(Attributes input)
-            {
-                Varyings output = (Varyings)0;
-
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-
-                VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-                output.vertex = vertexInput.positionCS;
-                
-                output.vertex.z = BillboardVerticalZDepthVert(input, output);
-                
-                output.uv = TRANSFORM_TEX(input.uv, _MainTex);
-                output.fogCoord = ComputeFogFactor(vertexInput.positionCS.z);
-
-                return output;
-            }
-
-            half4 frag(Varyings input) : SV_Target
-            {
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-
-                half2 uv = input.uv;
-                half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
-                half3 color = texColor.rgb * _BaseColor.rgb;
-                half alpha = texColor.a * _BaseColor.a;
-                
-                // Always clip.
-                clip(alpha - _Cutoff);
-                
-                AlphaDiscard(alpha, _Cutoff);
-
-#ifdef _ALPHAPREMULTIPLY_ON
-                color *= alpha;
-#endif
-
-                color = MixFog(color, input.fogCoord);
-
-                return half4(color, alpha);
-            }
+            #include "LitInput.hlsl"
+            #include "UnlitShadowForwardPass.hlsl"
             ENDHLSL
         }
 
