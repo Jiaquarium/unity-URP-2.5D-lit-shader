@@ -213,7 +213,15 @@ half4 LitPassFragment(Varyings input) : SV_Target
     InputData inputData;
     InitializeInputData(input, surfaceData.normalTS, inputData);
 
-    half4 color = UniversalFragmentPBR(inputData, surfaceData);
+    half2 uv = input.uv;
+    half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
+    half4 color = texColor.rgba * _BaseColor.rgba;
+
+    // https://docs.unity3d.com/560/Documentation/Manual/SL-VertexFragmentShaderExamples.html
+    Light light = GetMainLight(inputData.shadowCoord);
+    half shadow = light.shadowAttenuation;
+
+    color.rgb = shadow == 1 ? color.rgb : color.rgb * (shadow + _ShadowLight);
 
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
     color.a = OutputAlpha(color.a, _Surface);
