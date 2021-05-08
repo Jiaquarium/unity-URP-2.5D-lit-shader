@@ -11,6 +11,7 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit"
         [MainTexture] _MainTex("Albedo", 2D) = "white" {}
         [MainColor] _BaseColor("Color", Color) = (0.5,0.5,0.5,1)
         
+        _ClipSpacePlaneAdjustment ("Clip Space Plane Adjustment", Vector) = (0.0,0.0,0.0,0.0)
         _ShadowLight ("Shadow Light", Float) = 0.5
         _Color("Tint", Color) = (1,1,1,1)
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5

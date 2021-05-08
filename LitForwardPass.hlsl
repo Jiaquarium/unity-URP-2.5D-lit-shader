@@ -114,8 +114,11 @@ float BillboardVerticalZDepthVert(Attributes IN, inout Varyings OUT)
     // view to clip space
     OUT.positionCS = mul(UNITY_MATRIX_P, viewPos);
 
+    // manual adjustment to the plane to cast ray to
+    float3 manualAdjustment = float3(_ClipSpacePlaneAdjustment.x, _ClipSpacePlaneAdjustment.y, _ClipSpacePlaneAdjustment.z);
+    
     // calculate distance to vertical billboard plane seen at this vertex's screen position
-    float3 planeNormal = normalize(float3(UNITY_MATRIX_V._m20, 0.0, UNITY_MATRIX_V._m22));
+    float3 planeNormal = normalize(float3(UNITY_MATRIX_V._m20, 0.0, UNITY_MATRIX_V._m22) + manualAdjustment);
     float3 planePoint = unity_ObjectToWorld._m03_m13_m23;
     float3 rayStart = _WorldSpaceCameraPos.xyz;
     float3 rayDir = -normalize(mul(UNITY_MATRIX_I_V, float4(viewPos.xyz, 1.0)).xyz - rayStart); // convert view to world, minus camera pos
