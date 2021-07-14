@@ -33,6 +33,7 @@ half _DetailNormalMapScale;
 half _Surface;
 float _ShadowLight;
 float4 _ClipSpacePlaneAdjustment;
+float4 _CameraFollowOffset;
 CBUFFER_END
 
 // NOTE: Do not ifdef the properties for dots instancing, but ifdef the actual usage.

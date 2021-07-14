@@ -1,5 +1,5 @@
 ﻿// Updated for URP 10.2.1/release
-// Unlit Sprite that casts shadows but does not receive lighting
+// Unlit Sprite that casts shadows and takes shadows but does not receive lighting
 // https://github.com/Unity-Technologies/Graphics/blob/10.2.1/release/com.unity.render-pipelines.universal/Shaders/Lit.shader
 Shader "Universal Render Pipeline/Custom/Sprites Unlit"
 {
@@ -11,7 +11,8 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit"
         [MainTexture] _MainTex("Albedo", 2D) = "white" {}
         [MainColor] _BaseColor("Color", Color) = (0.5,0.5,0.5,1)
         
-        _ClipSpacePlaneAdjustment ("Clip Space Plane Adjustment", Vector) = (0.0,0.0,0.0,0.0)
+        _CameraFollowOffset ("Camera Offset Ray Start", Vector) = (10.8, 21.0, -22.0, 0.0)
+        _ClipSpacePlaneAdjustment ("Clip Space Plane Adjustment", Vector) = (0.0, 0.0, 0.0, 0.0)
         _ShadowLight ("Shadow Light", Float) = 0.5
         _Color("Tint", Color) = (1,1,1,1)
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
