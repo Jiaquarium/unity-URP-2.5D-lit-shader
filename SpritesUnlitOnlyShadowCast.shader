@@ -1,7 +1,8 @@
 ﻿// Updated for URP 10.2.1/release
 // Unlit Sprite that casts shadows and takes shadows but does not receive lighting
+// Use this in conjunction with an overlay sprite with a material with the SpritesOnlyShadowReceive shader.
 // https://github.com/Unity-Technologies/Graphics/blob/10.2.1/release/com.unity.render-pipelines.universal/Shaders/Lit.shader
-Shader "Universal Render Pipeline/Custom/Sprites Unlit"
+Shader "Universal Render Pipeline/Custom/Sprites Only Shadow Cast"
 {
     Properties
     {
@@ -147,7 +148,7 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit"
             #pragma fragment LitPassFragment
 
             #include "LitInput.hlsl"
-            #include "UnlitShadowForwardPass.hlsl"
+            #include "UnlitOnlyShadowCastForwardPass.hlsl"
             ENDHLSL
         }
 

@@ -238,14 +238,6 @@ half4 LitPassFragment(Varyings input) : SV_Target
     half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
     half4 color = texColor.rgba * _BaseColor.rgba;
 
-    // Manual adjustment to change color of shadow on pixels. 
-    // https://docs.unity3d.com/560/Documentation/Manual/SL-VertexFragmentShaderExamples.html
-    // https://github.com/Unity-Technologies/Graphics/blob/master/com.unity.render-pipelines.universal/ShaderLibrary/RealtimeLights.hlsl
-    Light light = GetMainLight(inputData.shadowCoord);
-    half shadow = light.shadowAttenuation;
-
-    color.rgb = shadow == 1 ? color.rgb : color.rgb * (shadow + _ShadowLight);
-
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
     color.a = OutputAlpha(color.a, _Surface);
 
