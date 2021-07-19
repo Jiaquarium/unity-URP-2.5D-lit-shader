@@ -44,7 +44,7 @@ float3 RotateVertexQuaternion(float3 position, float3 axis, float angle)
   return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
 }
 
-float4 GetShadowPositionHClip(Attributes input)
+float4 ShadowTransform(Attributes input)
 {
     // Skew transformation matrix
     float h = _ShadowHorizontalSkew;
@@ -70,10 +70,14 @@ float4 GetShadowPositionHClip(Attributes input)
     input.positionOS = float4(P.x, P.y, P.z, 1);
 
     // Transform with matrix
-    float4 transformedPositionOS = mul(transformMatrix, input.positionOS);
+    float4 transformedPositionOS = mul(transformMatrix, input.positionOS);    
+    return transformedPositionOS;
+}
 
+float4 GetShadowPositionHClip(Attributes input)
+{
     // Apply URP Shadow Bias
-    float3 positionWS = TransformObjectToWorld(transformedPositionOS.xyz);
+    float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
     float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
     float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _LightDirection));
 
@@ -92,6 +96,7 @@ Varyings ShadowPassVertex(Attributes input)
     UNITY_SETUP_INSTANCE_ID(input);
 
     output.uv = TRANSFORM_TEX(input.texcoord, _MainTex);
+    input.positionOS = ShadowTransform(input);
     output.positionCS = GetShadowPositionHClip(input);
     
     return output;
