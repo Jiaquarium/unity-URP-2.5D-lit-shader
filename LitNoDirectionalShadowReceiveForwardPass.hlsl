@@ -6,7 +6,7 @@
 #ifndef UNIVERSAL_FORWARD_LIT_PASS_INCLUDED
 #define UNIVERSAL_FORWARD_LIT_PASS_INCLUDED
 
-#include "LitOnlyShadowCastLighting.hlsl"
+#include "LitNoDirectionalShadowReceiveLighting.hlsl"
 
 // GLES2 has limited amount of interpolators
 #if defined(_PARALLAXMAP) && !defined(SHADER_API_GLES)

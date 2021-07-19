@@ -1,6 +1,7 @@
-﻿// Updated for URP 10.2.1/release
+﻿// Use for Lit Sprites where we want to handle Directional Shadow Receive via a mask.
+// Updated for URP 10.2.1/release
 // https://github.com/Unity-Technologies/Graphics/blob/10.2.1/release/com.unity.render-pipelines.universal/Shaders/Lit.shader
-Shader "Universal Render Pipeline/Custom/Sprites Lit Only Shadow Cast"
+Shader "Universal Render Pipeline/Custom/Sprites Lit No Directional Shadow Receive"
 {
     Properties
     {
@@ -155,7 +156,7 @@ Shader "Universal Render Pipeline/Custom/Sprites Lit Only Shadow Cast"
             #pragma fragment LitPassFragment
 
             #include "LitInput.hlsl"
-            #include "LitOnlyShadowCastForwardPass.hlsl"
+            #include "LitNoDirectionalShadowReceiveForwardPass.hlsl"
             ENDHLSL
         }
 
