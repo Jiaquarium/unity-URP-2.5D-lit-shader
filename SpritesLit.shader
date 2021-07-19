@@ -12,6 +12,14 @@ Shader "Universal Render Pipeline/Custom/Sprites Lit"
         
         _CameraFollowOffset ("Camera Offset Ray Start", Vector) = (10.8, 21.0, -22.0, 0.0)
         _ClipSpacePlaneAdjustment ("Clip Space Plane Adjustment", Vector) = (0.0,0.0,0.0,0.0)
+        
+        // Custom Shadow Caster properties
+        _ShadowHorizontalSkew ("Shadow Hz Skew", Float) = 0.0
+        _ShadowVerticalSkew ("Shadow Vt Skew", Float) = 0.0
+        _ShadowTranslation ("Shadow Translation", Vector) = (0.0, 0.0, 0.0, 0.0)
+        _ShadowScale ("Shadow Scale", Vector) = (1.0, 1.0, 1.0, 0.0)
+        _ShadowRotation ("Shadow Rotation", Vector) = (0.0, 0.0, 0.0, 0.0)
+        
         _Color("Tint", Color) = (1,1,1,1)
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 

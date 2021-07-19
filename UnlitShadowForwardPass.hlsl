@@ -147,11 +147,11 @@ float BillboardVerticalZDepthVert(Attributes IN, VertexPositionInputs vertexInpu
     float newPosZ = planeOutPos.z / planeOutPos.w * OUT.positionCS.w;
     
     // Use the closest clip space z.
-    #if defined(UNITY_REVERSED_Z)
+#if defined(UNITY_REVERSED_Z)
     newPosZ = max(OUT.positionCS.z, newPosZ);
-    #else
+#else
     newPosZ = min(OUT.positionCS.z, newPosZ);
-    #endif
+#endif
 
     return newPosZ;
 }

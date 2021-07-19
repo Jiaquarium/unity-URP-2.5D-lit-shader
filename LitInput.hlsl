@@ -34,6 +34,11 @@ half _Surface;
 float _ShadowLight;
 float4 _ClipSpacePlaneAdjustment;
 float4 _CameraFollowOffset;
+float _ShadowHorizontalSkew;
+float _ShadowVerticalSkew;
+float4 _ShadowTranslation;
+float4 _ShadowScale;
+float4 _ShadowRotation;
 CBUFFER_END
 
 // NOTE: Do not ifdef the properties for dots instancing, but ifdef the actual usage.
@@ -55,6 +60,11 @@ UNITY_DOTS_INSTANCING_START(MaterialPropertyMetadata)
     UNITY_DOTS_INSTANCED_PROP(float , _DetailAlbedoMapScale)
     UNITY_DOTS_INSTANCED_PROP(float , _DetailNormalMapScale)
     UNITY_DOTS_INSTANCED_PROP(float , _Surface)
+    UNITY_DOTS_INSTANCED_PROP(float , _ShadowHorizontalSkew)
+    UNITY_DOTS_INSTANCED_PROP(float , _ShadowVerticalSkew)
+    UNITY_DOTS_INSTANCED_PROP(float4 , _ShadowTranslation)
+    UNITY_DOTS_INSTANCED_PROP(float4 , _ShadowScale)
+    UNITY_DOTS_INSTANCED_PROP(float4 , _ShadowRotation)
 UNITY_DOTS_INSTANCING_END(MaterialPropertyMetadata)
 
 #define _BaseColor              UNITY_ACCESS_DOTS_INSTANCED_PROP_FROM_MACRO(float4 , Metadata__BaseColor)
@@ -71,6 +81,11 @@ UNITY_DOTS_INSTANCING_END(MaterialPropertyMetadata)
 #define _DetailAlbedoMapScale   UNITY_ACCESS_DOTS_INSTANCED_PROP_FROM_MACRO(float  , Metadata__DetailAlbedoMapScale)
 #define _DetailNormalMapScale   UNITY_ACCESS_DOTS_INSTANCED_PROP_FROM_MACRO(float  , Metadata__DetailNormalMapScale)
 #define _Surface                UNITY_ACCESS_DOTS_INSTANCED_PROP_FROM_MACRO(float  , Metadata__Surface)
+#define _ShadowHorizontalSkew   UNITY_ACCESS_DOTS_INSTANCED_PROP_FROM_MACRO(float  , Metadata__ShadowHorizontalSkew)
+#define _ShadowVerticalSkew     UNITY_ACCESS_DOTS_INSTANCED_PROP_FROM_MACRO(float  , Metadata__ShadowVerticalSkew)
+#define _ShadowTranslation      UNITY_ACCESS_DOTS_INSTANCED_PROP_FROM_MACRO(float4  , Metadata__ShadowXTranslation)
+#define _ShadowScale            UNITY_ACCESS_DOTS_INSTANCED_PROP_FROM_MACRO(float4  , Metadata__ShadowScale)
+#define _ShadowRotation         UNITY_ACCESS_DOTS_INSTANCED_PROP_FROM_MACRO(float4  , Metadata__ShadowRotation)
 #endif
 
 TEXTURE2D(_ParallaxMap);        SAMPLER(sampler_ParallaxMap);
