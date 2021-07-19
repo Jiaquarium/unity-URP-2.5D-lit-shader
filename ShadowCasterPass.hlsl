@@ -57,17 +57,6 @@ float4 GetShadowPositionHClip(Attributes input)
     float a = _ShadowScale.x;
     float b = _ShadowScale.y;
     float c = _ShadowScale.z;
-
-    // float rx = _ShadowRotation.x;
-    // float ry = _ShadowRotation.y;
-    // float rz = _ShadowRotation.z;
-
-    // float4x4 rotationMatrix = float4x4(
-    //     cos(d) + pow(rx, 2) * (1 - cos(d))  , rx * ry * (1 - cos(d)) - rz * sin(d), rx * rz * (1 - cos(d)) + ry * sin(d)  , 0,
-    //     ry * rx * (1 - cos(d)) + rz * sin(d), cos(d) + pow(ry, 2) * (1 - cos(d))  , ry * rz * (1 - cos(d)) - rx * sin(d)  , 0,
-    //     rz * rx * (1 - cos(d)) - ry * sin(d), rz * ry * (1 - cos(d)) + rx * sin(d), cos(d) + pow(rz, 2) * (1 - cos(d))    , 0,
-    //     0                                   , 0                                   , 0                                     , 1
-    // );
     
     float4x4 transformMatrix = float4x4(
         a, h, 0, x,
