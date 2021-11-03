@@ -188,7 +188,7 @@ Shader "Universal Render Pipeline/Custom/Sprites Lit No Directional Shadow Recei
             #pragma fragment ShadowPassFragment
 
             #include "LitInput.hlsl"
-            #include "ShadowCasterPass.hlsl"
+            #include "ShadowCasterPassTransform.hlsl"
             ENDHLSL
         }
 

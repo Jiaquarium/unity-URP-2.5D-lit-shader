@@ -1,6 +1,8 @@
-﻿// Updated for URP 10.2.1/release
+﻿// No clip adjustment Sprites shader that receives and casts Directional Shadows.
+// Does not react to ambient light.
+// Updated for URP 10.2.1/release
 // https://github.com/Unity-Technologies/Graphics/blob/10.2.1/release/com.unity.render-pipelines.universal/Shaders/Lit.shader
-Shader "Universal Render Pipeline/Custom/Sprites Lit"
+Shader "Universal Render Pipeline/Custom/Sprites Default Unlit Shadow"
 {
     Properties
     {
@@ -10,16 +12,9 @@ Shader "Universal Render Pipeline/Custom/Sprites Lit"
         [MainTexture] _MainTex("Albedo", 2D) = "white" {}
         [MainColor] _BaseColor("Color", Color) = (0.5,0.5,0.5,1)
         
-        _CameraFollowOffset ("Camera Offset Ray Start", Vector) = (10.8, 21.0, -22.0, 0.0)
-        _ClipSpacePlaneAdjustment ("Clip Space Plane Adjustment", Vector) = (0.0,0.0,0.0,0.0)
-        
-        // Custom Shadow Caster properties
-        _ShadowHorizontalSkew ("Shadow Hz Skew", Float) = 0.0
-        _ShadowVerticalSkew ("Shadow Vt Skew", Float) = 0.0
-        _ShadowTranslation ("Shadow Translation", Vector) = (0.0, 0.0, 0.0, 0.0)
-        _ShadowScale ("Shadow Scale", Vector) = (1.0, 1.0, 1.0, 0.0)
-        _ShadowRotation ("Shadow Rotation", Vector) = (0.0, 0.0, 0.0, 0.0)
-        
+        // Shadow receiving
+        _ShadowLight ("Shadow Light", Float) = 0.5
+
         _Color("Tint", Color) = (1,1,1,1)
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
@@ -155,7 +150,7 @@ Shader "Universal Render Pipeline/Custom/Sprites Lit"
             #pragma fragment LitPassFragment
 
             #include "LitInput.hlsl"
-            #include "LitForwardPass.hlsl"
+            #include "DefaultUnlitShadowForwardPass.hlsl"
             ENDHLSL
         }
 
@@ -187,7 +182,7 @@ Shader "Universal Render Pipeline/Custom/Sprites Lit"
             #pragma fragment ShadowPassFragment
 
             #include "LitInput.hlsl"
-            #include "ShadowCasterPassTransform.hlsl"
+            #include "ShadowCasterPass.hlsl"
             ENDHLSL
         }
 
