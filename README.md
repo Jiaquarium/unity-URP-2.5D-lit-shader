@@ -1,6 +1,6 @@
 # Universal RP 2.5D Lit Sprite Shader 🖤 &middot; [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fluo-boa%2Funity-URP-2.5D-lit-shader&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
-An implementation of this shader is used in [Night Loops](https://store.steampowered.com/app/1826060/Night_Loops/) (Wishlist now if you'd like to support me, thank you!)
+An implementation of this shader is used in [Night Loops](https://store.steampowered.com/app/1826060/Night_Loops/) (Wishlist if you'd like to support, thank you!)
 
 The shader prevents 2D Sprites from clipping horribly into the 3D environment when using a skewed orthographic camera. This is useful for setups where 2D sprites must be rotated towards the camera in a 3D environment to achieve a 2.5D look and feel. Also gives 2D Sprites a Lit Behavior when using Unity's Universal RP 3D settings.
 
