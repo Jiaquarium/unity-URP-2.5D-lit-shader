@@ -1,7 +1,7 @@
 ﻿// Updated for URP 10.2.1/release
 // Unlit Sprite that casts shadows and takes shadows but does not receive lighting
 // https://github.com/Unity-Technologies/Graphics/blob/10.2.1/release/com.unity.render-pipelines.universal/Shaders/Lit.shader
-Shader "Universal Render Pipeline/Custom/Sprites Unlit Shadow"
+Shader "Universal Render Pipeline/Custom/Sprites Unlit Shadow (Stencil Behind)"
 {
     Properties
     {
@@ -106,6 +106,13 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit Shadow"
             Name "Unlit"
             Tags{
                 "LightMode" = "UniversalForward"
+                "Queue" = "Geometry"
+            }
+
+            Stencil {
+                Ref 2
+                Comp NotEqual
+                Pass Keep
             }
 
             Blend[_SrcBlend][_DstBlend]
@@ -165,8 +172,11 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit Shadow"
         Pass
         {
             Name "ShadowCaster"
-            Tags{"LightMode" = "ShadowCaster"}
-
+            Tags{
+                "LightMode" = "ShadowCaster"
+                "Queue" = "Opaque"
+            }
+            
             ZWrite On
             ZTest LEqual
             ColorMask 0

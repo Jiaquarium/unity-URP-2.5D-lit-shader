@@ -8,6 +8,8 @@ CBUFFER_START(UnityPerMaterial)
     half4 _BaseColor;
     half _Cutoff;
     half _Surface;
+    float4 _ClipSpacePlaneAdjustment;
+    float4 _CameraFollowOffset;
 CBUFFER_END
 
 #ifdef UNITY_DOTS_INSTANCING_ENABLED

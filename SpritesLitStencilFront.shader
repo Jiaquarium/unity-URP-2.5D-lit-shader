@@ -1,7 +1,6 @@
 ﻿// Updated for URP 10.2.1/release
-// Unlit Sprite that casts shadows and takes shadows but does not receive lighting
 // https://github.com/Unity-Technologies/Graphics/blob/10.2.1/release/com.unity.render-pipelines.universal/Shaders/Lit.shader
-Shader "Universal Render Pipeline/Custom/Sprites Unlit Shadow"
+Shader "Universal Render Pipeline/Custom/Sprites Lit (Stencil Front)"
 {
     Properties
     {
@@ -11,12 +10,8 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit Shadow"
         [MainTexture] _MainTex("Albedo", 2D) = "white" {}
         [MainColor] _BaseColor("Color", Color) = (0.5,0.5,0.5,1)
         
-        // Custom CS Adjustment
         _CameraFollowOffset ("Camera Offset Ray Start", Vector) = (10.8, 21.0, -22.0, 0.0)
-        _ClipSpacePlaneAdjustment ("Clip Space Plane Adjustment", Vector) = (0.0, 0.0, 0.0, 0.0)
-        
-        // Shadow receiving
-        _ShadowLight ("Shadow Light", Float) = 0.5
+        _ClipSpacePlaneAdjustment ("Clip Space Plane Adjustment", Vector) = (0.0,0.0,0.0,0.0)
         
         // Custom Shadow Caster properties
         _ShadowHorizontalSkew ("Shadow Hz Skew", Float) = 0.0
@@ -24,7 +19,7 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit Shadow"
         _ShadowTranslation ("Shadow Translation", Vector) = (0.0, 0.0, 0.0, 0.0)
         _ShadowScale ("Shadow Scale", Vector) = (1.0, 1.0, 1.0, 0.0)
         _ShadowRotation ("Shadow Rotation", Vector) = (0.0, 0.0, 0.0, 0.0)
-
+        
         _Color("Tint", Color) = (1,1,1,1)
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
@@ -98,14 +93,23 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit Shadow"
             "ShaderModel"="4.5"
         }
         LOD 300
-        
+
         // ------------------------------------------------------------------
         //  Forward pass. Shades all light in a single pass. GI + emission + Fog
         Pass
         {
-            Name "Unlit"
+            // Lightmode matches the ShaderPassName set in UniversalRenderPipeline.cs. SRPDefaultUnlit and passes with
+            // no LightMode tag are also rendered by Universal Render Pipeline
+            Name "ForwardLit"
             Tags{
                 "LightMode" = "UniversalForward"
+                "Queue" = "Geometry-1"
+            }
+
+            Stencil {
+                Ref 2
+                Comp Always
+                Pass Replace
             }
 
             Blend[_SrcBlend][_DstBlend]
@@ -158,7 +162,7 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit Shadow"
             #pragma fragment LitPassFragment
 
             #include "LitInput.hlsl"
-            #include "UnlitShadowForwardPass.hlsl"
+            #include "LitForwardPass.hlsl"
             ENDHLSL
         }
 
