@@ -1,6 +1,6 @@
 ﻿// Updated for URP 10.2.1/release
 // Unlit Sprite. This differs from Unlit Default Sprite in that this behaves like a Mesh (no Transparent sorting order interaction).
-// https://github.com/Unity-Technologies/Graphics/blob/10.2.1/release/com.unity.render-pipelines.universal/Shaders/Lit.shader
+// https://github.com/Unity-Technologies/Graphics/blob/10.2.1/release/com.unity.render-pipelines.universal/Shaders/Unlit.shader
 
 Shader "Universal Render Pipeline/Custom/Sprites Unlit"
 {
@@ -33,7 +33,13 @@ Shader "Universal Render Pipeline/Custom/Sprites Unlit"
     }
     SubShader
     {
-        Tags {"RenderType" = "Opaque" "IgnoreProjector" = "True" "RenderPipeline" = "UniversalPipeline" "ShaderModel"="4.5"}
+        Tags {
+            "RenderType" = "Opaque"
+            "IgnoreProjector" = "True"
+            "RenderPipeline" = "UniversalPipeline"
+            "ShaderModel"="4.5"
+            "DisableBatching" = "True"
+        }
         LOD 100
 
         Blend [_SrcBlend][_DstBlend]
