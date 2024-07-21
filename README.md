@@ -4,7 +4,7 @@ An implementation of this shader is used in [Night Loops](https://store.steampow
 
 The shader prevents 2D Sprites from clipping horribly into the 3D environment when using a skewed orthographic camera. This is useful for setups where 2D sprites must be rotated towards the camera in a 3D environment to achieve a 2.5D look and feel. Also gives 2D Sprites a Lit Behavior when using Unity's Universal RP 3D settings.
 
-![Shader Demo Pic](/Assets/demo_0.png)
+![Shader Demo Pic](/Assets/demo_0.jpg)
 
 * helps prevent rotated Sprites from clipping nearby 3D meshes by rewriting the clip space depth as if the Sprite were vertically aligned in the world like the meshes are
 * allows Sprites to react to lighting and receive / cast realtime shadows from Directional Lights
