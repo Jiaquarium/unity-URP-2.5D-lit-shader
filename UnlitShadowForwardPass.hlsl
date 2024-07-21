@@ -104,31 +104,44 @@ float RayPlaneIntersection(float3 rayDir, float3 rayPos, float3 planeNormal, flo
     return dot(diff, planeNormal) / denom;
 }
 
-float BillboardVerticalZDepthVert(Attributes IN, inout Varyings OUT)
+float BillboardVerticalZDepthVert(Attributes IN, VertexPositionInputs vertexInput, inout Varyings OUT)
 {
-    // billboard mesh towards camera
+    // Billboard mesh towards camera
     float3 vpos = mul((float3x3)unity_ObjectToWorld, IN.positionOS.xyz);
     float4 worldCoord = float4(unity_ObjectToWorld._m03, unity_ObjectToWorld._m13, unity_ObjectToWorld._m23, 1);
     float4 viewPos = mul(UNITY_MATRIX_V, worldCoord) + float4(vpos, 0);
     
-    // view to clip space
+    // View to clip space
     OUT.positionCS = mul(UNITY_MATRIX_P, viewPos);
 
-    // manual adjustment to the plane to cast ray to
+    // Manual adjustment to the plane to cast ray to
     float3 manualAdjustment = float3(_ClipSpacePlaneAdjustment.x, _ClipSpacePlaneAdjustment.y, _ClipSpacePlaneAdjustment.z);
     
-    // calculate distance to vertical billboard plane seen at this vertex's screen position
-    float3 planeNormal = normalize(float3(UNITY_MATRIX_V._m20, 0.0, UNITY_MATRIX_V._m22) + manualAdjustment);
+    // ------------------------------------------------------------------
+    // Calculate distance to vertical billboard plane seen at this vertex's screen position
+    
+    // The normal that faces the default direction of Sprite x axis and up in world space (Camera Forward Vector).
+    float3 planeNormal = normalize(float3(0.0, 0.0, UNITY_MATRIX_V._m22) + manualAdjustment);
+    // Equivalent to transform.position.z (only works if batching is disabled).
     float3 planePoint = unity_ObjectToWorld._m03_m13_m23;
-    float3 rayStart = _WorldSpaceCameraPos.xyz;
+    // Start the ray as if the camera were offset to this vertex.
+    float3 rayStart = vertexInput.positionWS + float3(_CameraFollowOffset.x, _CameraFollowOffset.y, _CameraFollowOffset.z);
+
+    // Direction of ray from camera.
     float3 rayDir = -normalize(mul(UNITY_MATRIX_I_V, float4(viewPos.xyz, 1.0)).xyz - rayStart); // convert view to world, minus camera pos
+    // Ray plane intersection of ray from camera to vertical plane.
     float dist = RayPlaneIntersection(rayDir, rayStart, planeNormal, planePoint);
 
-    // calculate the clip space z for vertical plane
+    // ------------------------------------------------------------------
+    // Calculate the clip space z for vertical plane
+    
+    // Convert from world space to clip space by multiplying View & Projection matrices by the point.
+    // rayStart + rayDir * dist gives a point in world space.
     float4 planeOutPos = mul(UNITY_MATRIX_VP, float4(rayStart + rayDir * dist, 1.0));
+    // Because OUT.positionCS.w will divide clip space to reach NDC (Normalized Device Coordinates)
     float newPosZ = planeOutPos.z / planeOutPos.w * OUT.positionCS.w;
     
-    // use the closest clip space z
+    // Use the closest clip space z.
     #if defined(UNITY_REVERSED_Z)
     newPosZ = max(OUT.positionCS.z, newPosZ);
     #else
@@ -190,7 +203,7 @@ Varyings LitPassVertex(Attributes input)
 #endif
 
     output.positionCS = vertexInput.positionCS;
-    output.positionCS.z = BillboardVerticalZDepthVert(input, output);
+    output.positionCS.z = BillboardVerticalZDepthVert(input, vertexInput, output);
 
     return output;
 }
@@ -212,7 +225,7 @@ half4 LitPassFragment(Varyings input) : SV_Target
 
     SurfaceData surfaceData;
     InitializeStandardLitSurfaceData(input.uv, surfaceData);
-
+    
     InputData inputData;
     InitializeInputData(input, surfaceData.normalTS, inputData);
 
@@ -220,6 +233,7 @@ half4 LitPassFragment(Varyings input) : SV_Target
     half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
     half4 color = texColor.rgba * _BaseColor.rgba;
 
+    // Manual adjustment to change color of shadow on pixels. 
     // https://docs.unity3d.com/560/Documentation/Manual/SL-VertexFragmentShaderExamples.html
     Light light = GetMainLight(inputData.shadowCoord);
     half shadow = light.shadowAttenuation;

@@ -104,31 +104,33 @@ float RayPlaneIntersection( float3 rayDir, float3 rayPos, float3 planeNormal, fl
     return dot(diff, planeNormal) / denom;
 }
 
-float BillboardVerticalZDepthVert(Attributes IN, inout Varyings OUT)
+float BillboardVerticalZDepthVert(Attributes IN, VertexPositionInputs vertexInput, inout Varyings OUT)
 {
-    // billboard mesh towards camera
+    // Billboard mesh towards camera
     float3 vpos = mul((float3x3)unity_ObjectToWorld, IN.positionOS.xyz);
     float4 worldCoord = float4(unity_ObjectToWorld._m03, unity_ObjectToWorld._m13, unity_ObjectToWorld._m23, 1);
     float4 viewPos = mul(UNITY_MATRIX_V, worldCoord) + float4(vpos, 0);
     
-    // view to clip space
+    // View to clip space
     OUT.positionCS = mul(UNITY_MATRIX_P, viewPos);
 
-    // manual adjustment to the plane to cast ray to
+    // Manual adjustment to the plane to cast ray to
     float3 manualAdjustment = float3(_ClipSpacePlaneAdjustment.x, _ClipSpacePlaneAdjustment.y, _ClipSpacePlaneAdjustment.z);
     
-    // calculate distance to vertical billboard plane seen at this vertex's screen position
-    float3 planeNormal = normalize(float3(UNITY_MATRIX_V._m20, 0.0, UNITY_MATRIX_V._m22) + manualAdjustment);
+    // ------------------------------------------------------------------
+    // Calculate distance to vertical billboard plane seen at this vertex's screen position
+    float3 planeNormal = normalize(float3(0.0, 0.0, UNITY_MATRIX_V._m22) + manualAdjustment);
     float3 planePoint = unity_ObjectToWorld._m03_m13_m23;
-    float3 rayStart = _WorldSpaceCameraPos.xyz;
+    float3 rayStart = vertexInput.positionWS + float3(_CameraFollowOffset.x, _CameraFollowOffset.y, _CameraFollowOffset.z);
     float3 rayDir = -normalize(mul(UNITY_MATRIX_I_V, float4(viewPos.xyz, 1.0)).xyz - rayStart); // convert view to world, minus camera pos
     float dist = RayPlaneIntersection(rayDir, rayStart, planeNormal, planePoint);
 
-    // calculate the clip space z for vertical plane
+    // ------------------------------------------------------------------
+    // Calculate the clip space z for vertical plane
     float4 planeOutPos = mul(UNITY_MATRIX_VP, float4(rayStart + rayDir * dist, 1.0));
     float newPosZ = planeOutPos.z / planeOutPos.w * OUT.positionCS.w;
     
-    // use the closest clip space z
+    // Use the closest clip space z.
     #if defined(UNITY_REVERSED_Z)
     newPosZ = max(OUT.positionCS.z, newPosZ);
     #else
@@ -190,7 +192,7 @@ Varyings LitPassVertex(Attributes input)
 #endif
 
     output.positionCS = vertexInput.positionCS;
-    output.positionCS.z = BillboardVerticalZDepthVert(input, output);
+    output.positionCS.z = BillboardVerticalZDepthVert(input, vertexInput, output);
 
     return output;
 }
