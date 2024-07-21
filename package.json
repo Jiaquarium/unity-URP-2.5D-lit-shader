@@ -1,0 +1,11 @@
+{
+	"name": "com.jiaquarium.unity-urp-2.5d-lit-shader",
+	"displayName": "Universal RP 2.5D Lit Sprite Shader",
+	"version": "0.0.0",
+	"author": {
+		"name": "Jiaquarium",
+		"url": "https://github.com/Jiaquarium"
+	},
+	"documentationUrl": "https://github.com/Jiaquarium/unity-URP-2.5D-lit-shader",
+	"keywords": ["shader", "urp", "2.5d", "sprite", "lighting", "depth", "shadow"]
+}
